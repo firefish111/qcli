@@ -4,12 +4,20 @@ use reqwest::blocking as http;
 
 #[derive(fmt::Debug)]
 pub enum Serv<'a> {
-  Aoz { program: &'a str, lang: &'a str }
+  Aoz(&'a [&'a str])
 }
 
 impl fmt::Display for Serv<'_> {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "{:#?}", self)
+    match self {
+      Serv::Aoz(data) => {
+        let mut prog = "";
+        if data.len() != 1 {
+          prog = &data[1];
+        }
+        write!(f, "AOZ where program {} written in {}", data[0], prog)
+      }
+    }
   }
 }
 
@@ -38,7 +46,7 @@ impl Serv<'_> {
 macro_rules! cli {
   ( $serv:path where $opt:expr ) => {
     {
-      let srv = $serv $opt;
+      let srv = $serv($opt);
       println!("sent a request to {}", srv);
       srv
     }
